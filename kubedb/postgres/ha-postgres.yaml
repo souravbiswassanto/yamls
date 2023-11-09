@@ -4,9 +4,10 @@ metadata:
   name: ha-postgres
   namespace: demo
 spec:
-  version: "13.2"
-  replicas: 3
+  version: "15.2"
+  replicas: 2
   storageType: Durable
+  terminationPolicy: WipeOut
   storage:
     storageClassName: "standard"
     accessModes:
