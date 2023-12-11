@@ -4,18 +4,14 @@ metadata:
   name: ha-postgres
   namespace: demo
 spec:
-  arbiter:
-    resources:
-      requests:
-        storage: 1Gi
   version: "14.1"
-  replicas: 2
+  replicas: 3
   storageType: Durable
   terminationPolicy: WipeOut
   storage:
-    storageClassName: "standard"
+    storageClassName: "linode-block-storage"
     accessModes:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 1Gi
+        storage: 10Gi

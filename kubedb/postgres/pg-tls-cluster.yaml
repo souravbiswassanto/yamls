@@ -4,8 +4,8 @@ metadata:
   name: demo-pg
   namespace: demo
 spec:
-  version: "16.0"
-  replicas: 3
+  version: "14.1"
+  replicas: 2
   standbyMode: Hot
   sslMode: verify-full
   storageType: Durable

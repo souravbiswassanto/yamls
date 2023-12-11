@@ -1,12 +1,13 @@
 apiVersion: ops.kubedb.com/v1alpha1
 kind: PostgresOpsRequest
 metadata:
-  name: pg-scale-horizontal
+  name: pg-vol-exp
   namespace: demo
 spec:
-  type: HorizontalScaling
+  type: VolumeExpansion
   databaseRef:
     name: ha-postgres
-  horizontalScaling:
-    replicas: 2
-
+  volumeExpansion:
+    mode: Online
+   # postgres: 11Gi
+    arbiter: 12Gi

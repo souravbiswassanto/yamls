@@ -1,0 +1,18 @@
+apiVersion: ops.kubedb.com/v1alpha1
+kind: PostgresOpsRequest
+metadata:
+  name: pg-scale-vertical
+  namespace: demo
+spec:
+  type: VerticalScaling
+  databaseRef:
+    name: ha-postgres
+  verticalScaling:
+    coordinator:
+      requests:
+        memory: "256Mi"
+        cpu: "0.1"
+    arbiter:
+      requests:
+        memory: "256Mi"
+        cpu: "0.2"

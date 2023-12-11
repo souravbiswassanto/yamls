@@ -15,8 +15,8 @@ spec:
         runAsUser: 70 # 999 for mongo
         seccompProfile:
           type: RuntimeDefault
-  version: "14.6"
-  replicas: 3
+  version: "14.1"
+  replicas: 2
   coordinator:
     securityContext:
       allowPrivilegeEscalation: false
@@ -28,19 +28,19 @@ spec:
         type: RuntimeDefault
   storageType: Durable
   terminationPolicy: WipeOut
-  monitor:
-    agent: prometheus.io/builtin
-    prometheus:
-     exporter:
-       securityContext:
-         allowPrivilegeEscalation: false
-         capabilities:
-           drop:
-           - ALL
-         runAsNonRoot: true
-         runAsUser: 999
-         seccompProfile:
-           type: RuntimeDefault
+#  monitor:
+#    agent: prometheus.io/builtin
+#    prometheus:
+#     exporter:
+#       securityContext:
+#         allowPrivilegeEscalation: false
+#         capabilities:
+#           drop:
+#           - ALL
+#         runAsNonRoot: true
+#         runAsUser: 999
+#         seccompProfile:
+#           type: RuntimeDefault
   storage:
     storageClassName: "standard"
     accessModes:
