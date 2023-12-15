@@ -1,0 +1,20 @@
+apiVersion: storage.kubestash.com/v1alpha1
+kind: BackupStorage
+metadata:
+  name: azure-storage
+  namespace: demo
+spec:
+  storage:
+    provider: azure
+    azure:
+      container: kubedb-ci
+      # endpoint: https://ap-south-1.linodeobjects.com
+      # region: ap-south-1
+      storageAccount: kubedbci
+      prefix: /demo/wal-g
+      secret: azure-secret
+  usagePolicy:
+    allowedNamespaces:
+      from: All
+  default: true
+  deletionPolicy: WipeOut
