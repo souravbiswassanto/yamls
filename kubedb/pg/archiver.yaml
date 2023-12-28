@@ -1,0 +1,56 @@
+apiVersion: archiver.kubedb.com/v1alpha1
+kind: PostgresArchiver
+metadata:
+  name: pg-archiver
+  namespace: demo
+spec:
+  pause: false
+  databases:
+    namespaces:
+      from: Selector
+      selector:
+        matchLabels:
+         kubernetes.io/metadata.name: demo
+    selector:
+      matchLabels:
+        archiver: "true"
+  retentionPolicy:
+    name: postgres-retention-policy
+    namespace: demo
+  encryptionSecret:
+    name: "encrypt-secret"
+    namespace: "demo"
+
+          #fsGroup: 70
+  fullBackup:
+    jobTemplate:
+      spec:
+        securityContext:
+          fsGroup: 70
+          runAsUser: 70
+          runAsGroup: 70
+    driver: "VolumeSnapshotter"
+    task:
+      params:
+        volumeSnapshotClassName: "longhorn"
+    scheduler:
+      successfulJobsHistoryLimit: 1
+      failedJobsHistoryLimit: 1
+      schedule: "30 3 * * *"
+    sessionHistoryLimit: 2
+  manifestBackup:
+    jobTemplate:
+      spec:
+        securityContext:
+          fsGroup: 70
+          runAsUser: 70
+          runAsGroup: 70
+    scheduler:
+      successfulJobsHistoryLimit: 1
+      failedJobsHistoryLimit: 1
+      schedule: "30 3 * * *"
+    sessionHistoryLimit: 2
+  backupStorage:
+    ref:
+      name: "local-storage"
+      namespace: "demo"

@@ -1,0 +1,29 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: standard-csi
+  annotations:
+    snapshot.storage.kubernetes.io/is-default-class: "true"
+driver: cinder.csi.openstack.org
+deletionPolicy: Delete
+parameters:
+  force-create: "false"
+
+  walBackup:
+    runtimeSettings:
+      pod:
+        securityContext:
+          runAsUser: 70
+          fsGroup: 70
+      container:
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+              - IPC_LOCK
+              - SYS_RESOURCE
+          runAsGroup: 70
+          runAsNonRoot: false
+          runAsUser: 70
+          seccompProfile:
+            type: RuntimeDefault

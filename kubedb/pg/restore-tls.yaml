@@ -1,0 +1,47 @@
+apiVersion: kubedb.com/v1alpha2
+kind: Postgres
+metadata:
+  name: restore-postgres
+  namespace: demo
+spec:
+  init:
+    archiver:
+      encryptionSecret:
+        name: encrypt-secret
+        namespace: demo
+      fullDBRepository:
+        name: ha-postgres-repository
+        namespace: demo
+     # manifestRepository:
+        # name: demo-pg-13-alpine-manifest
+         #namespace: demo
+      # recoveryTimestamp: "2023-11-29T11:19:23.498182Z"
+      recoveryTimestamp: "2023-12-27T05:24:59.879742Z"
+  version: "14.10"
+  replicas: 3
+  standbyMode: Hot
+  sslMode: verify-full
+  clientAuthMode: cert
+  tls:
+    issuerRef:
+      apiGroup: cert-manager.io
+      name: pg-issuer
+      kind: Issuer
+    certificates:
+      - alias: server
+        subject:
+          organizations:
+            - kubedb:server
+        dnsNames:
+          - localhost
+        ipAddresses:
+          - "127.0.0.1"
+  storageType: Durable
+  storage:
+    storageClassName: "longhorn"
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  terminationPolicy: WipeOut

@@ -1,0 +1,99 @@
+apiVersion: apps.k8s.appscode.com/v1alpha1
+kind: Sidekick
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"kubedb.com/v1alpha2","kind":"Postgres","metadata":{"annotations":{},"labels":{"archiver":"true"},"name":"ha-postgres","namespace":"demo"},"spec":{"archiver":{"ref":{"name":"pg-archiver","namespace":"demo"}},"replicas":2,"standbyMode":"Hot","storage":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"1Gi"}},"storageClassName":"longhorn"},"storageType":"Durable","terminationPolicy":"WipeOut","version":"14.10"}}
+  creationTimestamp: "2023-12-27T14:36:34Z"
+  finalizers:
+  - apps.k8s.appscode.com
+  generation: 1
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: ha-postgres
+    app.kubernetes.io/managed-by: kubedb.com
+    app.kubernetes.io/name: postgreses.kubedb.com
+    archiver: "true"
+  name: ha-postgres-sidekick
+  namespace: demo
+  ownerReferences:
+  - apiVersion: kubedb.com/v1alpha2
+    blockOwnerDeletion: true
+    controller: true
+    kind: Postgres
+    name: ha-postgres
+    uid: aec792f7-1d7c-4ce1-8b44-15c3cc35ac8f
+  resourceVersion: "424775"
+  uid: 8ea7ad31-c47d-413e-951e-cb7d4cae1832
+spec:
+  volumes:
+    - name: local
+      nfs:
+        server: 10.2.0.170
+        path: /exports
+        readOnly: false
+  containers:
+  - args:
+    - archive
+    env:
+    - name: PRIMARY_DNS_NAME
+      value: ha-postgres.demo.svc
+    - name: NAMESPACE
+      value: demo
+    - name: DBNAME
+      value: ha-postgres
+    - name: SSL_MODE
+      value: disable
+    - name: CLIENT_AUTH_MODE
+      value: md5
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          key: username
+          name: ha-postgres-auth
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: password
+          name: ha-postgres-auth
+    - name: WALG_FILE_PREFIX
+      value: /pg/walg/demo/ha-postgres
+    image: souravbiswassanto/postgres-archiver:tls-fix_14.10-alpine_linux_amd64@sha256:0f1461137281a0a5e2ecc85965a72f2171c1261903dd708d116611b5526e2902
+    imagePullPolicy: Always
+    name: wal-g
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        add:
+        - IPC_LOCK
+        - SYS_RESOURCE
+      runAsGroup: 70
+      runAsNonRoot: true
+      runAsUser: 70
+      seccompProfile:
+        type: RuntimeDefault
+    volumeMounts:
+    - mountPath: /var/pv
+      name: data
+    - mountPath: /pg/walg
+      name: local
+  leader:
+    selectionPolicy: First
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: ha-postgres
+        app.kubernetes.io/managed-by: kubedb.com
+        app.kubernetes.io/name: postgreses.kubedb.com
+        archiver: "true"
+        kubedb.com/role: primary
+  restartPolicy: Always
+  securityContext:
+    runAsUser: 0
+  serviceAccountName: ha-postgres

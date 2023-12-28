@@ -1,0 +1,40 @@
+apiVersion: kubedb.com/v1alpha2
+kind: Postgres
+metadata:
+  name: ha-postgres
+  namespace: demo
+  labels:
+    archiver: "true"
+spec:
+  version: "14.10"
+  replicas: 2
+  standbyMode: Hot
+  sslMode: verify-full
+  storageType: Durable
+  clientAuthMode: cert
+  tls:
+    issuerRef:
+      apiGroup: cert-manager.io
+      name: pg-issuer
+      kind: Issuer
+    certificates:
+      - alias: server
+        subject:
+          organizations:
+            - kubedb:server
+        dnsNames:
+          - localhost
+        ipAddresses:
+          - "127.0.0.1"
+  storage:
+    storageClassName: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
+  archiver:
+    ref:
+      name: pg-archiver
+      namespace: demo
+  terminationPolicy: WipeOut
